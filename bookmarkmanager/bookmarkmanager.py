@@ -71,14 +71,22 @@ class BookMarkManager:
         return t_lines
 
 if __name__ == '__main__':
+    import os
+    import sys
+    import re
+    tmp_file_list = os.listdir(os.path.dirname(sys.path[0]))
+    src_file = ""
+    for t_file in tmp_file_list:
+        if re.search(r'^bookmarks_\d+', t_file):
+            src_file = t_file
+            break
     bmm1 = BookMarkManager('../bookmarks.html')
     bmm1.initialize()
-    bmm2 = BookMarkManager('../bookmarks_16_5_16.html')
+    bmm2 = BookMarkManager(''.join(['../', src_file]))
     bmm2.initialize()
     bmm1.get_inserted_item(bmm2)
     final_lines = bmm1.get_merge_lines(bmm2)
     file_o = open('../bookmarks_output.html', 'w')
     file_o.writelines(map(lambda x: ''.join([x, "\n"]), final_lines))
     file_o.close()
-
 
