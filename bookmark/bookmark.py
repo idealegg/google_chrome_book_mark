@@ -3,17 +3,17 @@ import re
 import pprint
 
 
-type_list = ('                    <DT><A HREF',
-'            </DL><p>',
-'            <DL><p>',
-'            <DT><A HREF',
-'            <DT><H3 ADD_DATE',
-'        </DL><p>',
-'        <DL><p>',
-'        <DT><H3 ADD_DATE',
-'    </DL><p>',
-'    <DL><p>',
-'    <DT><H3 ADD_DATE',
+type_list = (   '                <DT><A HREF',
+                '            </DL><p>',
+                '            <DL><p>',
+                '            <DT><A HREF',
+                '            <DT><H3 ADD_DATE',
+                '        </DL><p>',
+                '        <DL><p>',
+                '        <DT><H3 ADD_DATE',
+                '    </DL><p>',
+                '    <DL><p>',
+                '    <DT><H3 ADD_DATE',
 None
 )
 
@@ -58,7 +58,7 @@ class BookMark:
                 if self.content[:len(t_type)] == t_type:
                     self.type = t_type
                     break
-        re_result = re.search(r'>([\w+]+)</H3>', self.content)
+        re_result = re.search(r'>([^<>]+)</H3>', self.content)
         if re_result:
             self.key = re_result.group(1)
         else:
@@ -93,12 +93,12 @@ class BookMark:
         return False
 
     def is_ahref(self):
-        if self.type and self.type.find('<DT><A HREF=') != -1:
+        if self.type and self.type.find('<DT><A HREF') != -1:
             return True
         return False
 
     def is_directory(self):
-        if self.type and self.type.find('<DT><H3 ADD_DATE=') != -1:
+        if self.type and self.type.find('<DT><H3 ADD_DATE') != -1:
             return True
         return False
 
@@ -111,15 +111,18 @@ class BookMark:
         if self.is_ahref():
             pass
 
-    def checked(self):
+    def has_checked(self):
         self.checked = True
         for c_item in self.child_list:
-            c_item.checked()
+            c_item.has_checked()
 
     def get_domain(self):
         domain = self.line_no
-        if self.child_list:
-            domain = self.child_list[-1].get_domain() + 1
+        if self.is_directory():
+            if self.child_list:
+                domain = self.child_list[-1].get_domain() + 1
+            else:
+                domain += 1
         return domain
 
     def print_bookmark(self):
@@ -131,5 +134,12 @@ class BookMark:
             print "type: {0}".format(self.type)
         else:
             print "type: None"
+        print "child_list:"
         pprint.pprint(self.child_list)
-        pprint.pprint(self.parent)
+        print 'parent'
+        if self.parent:
+            print self.parent
+        print 'self.to_inserted_behind:'
+        pprint.pprint(self.to_inserted_behind)
+
+

@@ -19,6 +19,7 @@ class BookMarkManager:
         for line in self.lines:
             num += 1
             line = line[:-1]
+            line = line.replace('\t', '    ')
             bm = bookmark.bookmark.BookMark(num, line)
             bm.initialize()
             #cur_type = bm.type
@@ -27,24 +28,23 @@ class BookMarkManager:
             self.bookmark_list.append(bm)
         num = 0
         for bm_item in self.bookmark_list:
-            c_num = 0
+            c_num = num+1
             for child_item in self.bookmark_list[num+1:]:
                 if not child_item.is_p():
                     if bm_item.is_child(child_item.type):
                         self.bookmark_list[num].child_list.append(child_item)
                         self.bookmark_list[c_num].parent = self.bookmark_list[num]
                     else:
-                        if bm_item.is_grandchild(child_item.type):
-                            continue
-                        else:
+                        if not bm_item.is_grandchild(child_item.type):
                             break
                 c_num += 1
             num += 1
 
     def find_item(self, item):
-        for bm_item in self.bookmark_list:
-            if item.type == bm_item.type and item.key == bm_item.key:
-                return bm_item
+        if item:
+            for bm_item in self.bookmark_list:
+                if item.type == bm_item.type and item.key == bm_item.key:
+                    return bm_item
         return None
 
     def get_inserted_item(self, i_bmm):
@@ -58,19 +58,29 @@ class BookMarkManager:
                     to_insert = i_item
                     i_item = i_item.parent
                     o_item = self.find_item(i_item)
-                if not to_insert.checked:
+                if to_insert and not to_insert.checked:
                     o_item.child_list[-1].to_inserted_behind.append(to_insert)
-                    i_item.checked()
+                    to_insert.has_checked()
 
-    def get_merge_lines(self, i_bmm):
-        t_lines = []
-        for m_item in self.bookmark_list:
-            t_lines.append(m_item.content)
+
+def get_merge_lines(offset, o_bmm_bm, i_bmm_bml):
+    t_lines = []
+    for m_item in o_bmm_bm:
+        if not m_item.checked:
+            if not m_item.is_directory():
+                t_lines.append(m_item.content)
+            else:
+                t_lines.append(m_item.content)
+                for l_item in o_bmm_bm[m_item.line_no - offset:m_item.get_domain() - offset]:
+                    t_lines.extend(get_merge_lines(l_item.line_no - 1, o_bmm_bm[l_item.line_no -1  - offset:l_item.get_domain() - offset], i_bmm_bml))
+            m_item.has_checked()
             for n_item in m_item.to_inserted_behind:
-                t_lines.extend(i_bmm.bookmark_list[n_item.line_no:n_item.get_domain()+1])
-        return t_lines
+                for k_item in i_bmm_bml[n_item.line_no-1:n_item.get_domain()]:
+                    t_lines.append(k_item.content)
+    return t_lines
 
-if __name__ == '__main__':
+
+def open_src():
     import os
     import sys
     import re
@@ -80,13 +90,24 @@ if __name__ == '__main__':
         if re.search(r'^bookmarks_\d+', t_file):
             src_file = t_file
             break
-    bmm1 = BookMarkManager('../bookmarks.html')
+
+
+def merge_bookmark(file1, file2, output_file):
+    bmm1 = BookMarkManager(file1)
     bmm1.initialize()
-    bmm2 = BookMarkManager(''.join(['../', src_file]))
+    bmm2 = BookMarkManager(file2)
     bmm2.initialize()
     bmm1.get_inserted_item(bmm2)
-    final_lines = bmm1.get_merge_lines(bmm2)
-    file_o = open('../bookmarks_output.html', 'w')
+    final_lines = get_merge_lines(0, bmm1.bookmark_list, bmm2.bookmark_list)
+    #print len(bmm1.bookmark_list)
+    #for item in bmm1.bookmark_list:
+    #    if item.to_inserted_behind:
+    #        item.print_bookmark()
+    file_o = open(output_file, 'w')
     file_o.writelines(map(lambda x: ''.join([x, "\n"]), final_lines))
     file_o.close()
 
+if __name__ == '__main__':
+    #merge_bookmark('../tmp1.txt', '../tmp2.txt', '../tmpfile')
+    merge_bookmark('../bookmarks.html', '../bookmarks_16_5_16_1.html', '../tmpfile')
+    merge_bookmark('../tmpfile', '../bookmarks_16_5_16_2.html', '../bookmarks_output.html')
