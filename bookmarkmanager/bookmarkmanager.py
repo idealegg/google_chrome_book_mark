@@ -109,5 +109,6 @@ def merge_bookmark(file1, file2, output_file):
 
 if __name__ == '__main__':
     #merge_bookmark('../tmp1.txt', '../tmp2.txt', '../tmpfile')
-    merge_bookmark('../bookmarks.html', '../bookmarks_16_5_16_1.html', '../tmpfile')
-    merge_bookmark('../tmpfile', '../bookmarks_16_5_16_2.html', '../bookmarks_output.html')
+    #merge_bookmark('../bookmarks.html', '../bookmarks_16_5_16_1.html', '../tmpfile')
+    #merge_bookmark('../tmpfile', '../bookmarks_16_5_16_2.html', '../bookmarks_output.html')
+    merge_bookmark('../bookmarks_output.html', '../bookmarks_16_11_5.html', '../bookmarks_output2.html')
