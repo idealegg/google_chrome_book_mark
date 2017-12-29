@@ -112,4 +112,5 @@ if __name__ == '__main__':
     #merge_bookmark('../bookmarks.html', '../bookmarks_16_5_16_1.html', '../tmpfile')
     #merge_bookmark('../tmpfile', '../bookmarks_16_5_16_2.html', '../bookmarks_output.html')
     #merge_bookmark('../bookmarks_output.html', '../bookmarks_16_11_5.html', '../bookmarks_output2.html')
-    merge_bookmark('../bookmarks_output2.html', '../bookmarks_2017_12_21.html', '../bookmarks_output3.html')
+    #merge_bookmark('../bookmarks_output2.html', '../bookmarks_2017_12_21.html', '../bookmarks_output3.html')
+    merge_bookmark('../bookmarks_output3.html', '../bookmarks_17_12_29.html', '../bookmarks_output.html')
